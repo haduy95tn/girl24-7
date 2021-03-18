@@ -1,0 +1,193 @@
+<? echo $_GET['txtname']?>
+<?php
+$username = "root"; // Khai báo username
+$password = "";      // Khai báo password
+$server   = "localhost";   // Khai báo server
+$dbname   = "khvatec";      // Khai báo database
+
+// Kết nối database tintuc
+$connect = mysqli_connect($server, $username, $password, $dbname);
+
+//Nếu kết nối bị lỗi thì xuất báo lỗi và thoát.
+if (!$connect) {
+    die("Không kết nối :" . mysqli_connect_error());
+    exit();
+}
+include('functions.php');
+if (!isAdmin()) {
+    $_SESSION['msg'] = "You must log in first";
+    header('location: index.php');
+}
+//Code xử lý, truy vấn và xem data
+$sql    = "SELECT * FROM khv_thainguyen WHERE  (time_out >'0' AND DateTime BETWEEN '".$_GET['dbdate1']." 00:00:00"."' AND '".$_GET['dbdate2']." 23:59:59')" ;
+$ket_qua = mysqli_query($connect,$sql);
+//Nếu kết quả kết nối không được thì xuất báo lỗi và thoát
+if (!$ket_qua) {
+    die("Không thể thực hiện câu lệnh SQL: " . mysqli_error($connect));
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Khách Thăm</title>
+    <link rel="stylesheet" href="css/view.css" type="text/css">
+    <link rel="SHORTCUT ICON" href="css/image/favicon.ico">
+</head>
+
+<body>
+    <div id="logo">
+        <a href="./checkdata.php"> <img src="image/KHVATEC.png" alt=""></a>
+    </div> 
+    <div id="search">
+    	<form action="date_checkdata.php" method="GET">
+    		<h4>Search Date</h4>
+    		<input type="date" name="dbdate1" value="">
+    		<input type="date" name="dbdate2" value="">
+    		<input type="submit">
+    	</form><br>
+    	<form action="txt_check.php" method="GET">
+    		<h4>Search Name and company:</h4>
+    		<input type="text" name="txtcheck"><br>
+    		<p1>Part/Bộ Phận:</p1><br>
+                    <input list="browsers" name="browser" placeholder="Select">
+                    <datalist id="browsers">
+                        <option value="HR-Hành Chính Nhân Sự">
+                        <option value="IT-Thông Tin">
+                        <option value="FI-Kế Toán">
+                        <option value="EHS-Môi Trường">
+                        <option value="Sale-Kinh Doanh">
+                        <option value="PUR-Mua Hàng">
+                        <option value="MP-Kế Hoanh">
+                        <option value="R&D-Phát Triển">
+                        <option value="QM-Quản Lý Chất Lượng">
+                        <option value="ANO">
+                        <option value="CASTING">
+                        <option value="EQM-Công Vụ">
+                        <option value="Chromate">
+                        <option value="CNC">
+                        <option value="Mold Team">
+                    </datalist>
+                    <input type="submit">
+    	</form>
+<!--     	 <form action="date_export.php" method="GET">
+    	 	<input type="date" name="dbdate" value="">
+    		<input type="submit" value="Export">
+    	</form> -->
+    </div>
+
+<!-- //Dùng vòng lặp while truy xuất các phần tử trong table -->
+<div class="container">
+			<?php while ($row = mysqli_fetch_array($ket_qua)):?>
+	<div id="infor">
+		<div id="visitor">
+		    <table>
+		    	<caption>Information Visitor</caption>
+				<tr>
+					<th>ID</th><td><?=$row['id']?></td>
+				</tr>
+				<tr>
+					<th>Username</th><td><?=$row['Username']?></td>
+				</tr>
+				<tr>
+					<th>Sex</th><td><?=$row['Sex']?></td>
+				</tr>
+				<tr>
+					<th>ID Number</th><td><?=$row['ID_Number']?></td>
+				</tr>
+				<tr>
+					<th>Phone</th><td><?=$row['Phone']?></td>
+				</tr>
+				<tr>
+					<th>Company</th><td><?=$row['Company']?></td>
+				</tr>
+				<tr>
+					<th>Appoint Purpose</th><td><?=$row['Appointment_purpose']?></td>
+				</tr>
+				<tr>
+					<th>List of Devices</th><td><?=$row['devices']?></td>
+				</tr>
+			</table>
+		</div>
+		<div id="staff">
+			<table>
+				<caption>Infomation Part</caption>
+				<tr>
+					<th>Name Staff</th><td><?=$row['Name_Staff']?></td>
+				</tr>
+				<tr>
+					<th>Part</th><td><?=$row['Part']?></td>
+				</tr>
+				<tr>
+					<th>Phone Staff</th><td><?=$row['Phone_Staff']?></td>
+				</tr>
+				<tr>
+					<th>Date and Time</th><td><?=$row['DateTime']?></td>
+				</tr>
+				<tr>
+					<th>Approval</th><td><?=$row['approval']?></td>
+				</tr>
+				<tr>
+					<th>Guest card ID</th><td><?=$row['card']?></td>
+				</tr>
+				<tr>
+					<th>Time In</th><td><?=$row['time_in']?></td>
+				</tr>
+				<tr>
+					<th>Time Out</th><td><?=$row['time_out']?></td>
+				</tr>
+			</table>
+		</div>
+ 			<div id="update">
+				<?php echo "<p2><a href='prin.php?id=" . $row['id'] . "'>View</a><p2>";?>
+				<hr>
+			</div>
+	</div>
+		    <?php 
+		    endwhile; ?> 
+			<?php 
+				//Đóng kết nối database tintuc
+				$connect->close();
+			?>
+</div>
+<!-- <footer> 
+    <div class="bar">
+        <div class="bar-wrap">
+                <ul class="links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">License</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Advertise</a></li>
+                    <li><a href="#">About</a></li>
+                </ul>
+            <div class="social">
+                <a href="#" class="fb">
+                    <span data-icon="f" class="icon"></span>
+                    <span class="info">
+                        <span class="follow">Become a fan Facebook</span>
+                    </span>
+                </a>
+
+                <a href="#" class="tw">
+                    <span data-icon="T" class="icon"></span>
+                    <span class="info">
+                        <span class="follow">Follow us Twitter</span>
+                    </span>
+                </a>
+
+                <a href="#" class="rss">
+                    <span data-icon="R" class="icon"></span>
+                    <span class="info">
+                        <span class="follow">Subscribe RSS</span>
+                    </span>
+                </a>
+            </div>
+                <div class="clear"></div>
+                <div class="copyright">&copy;  200 All Rights Reserved___Designed by Duy IT. Need support please contact 0399203074 or hotline 113 </div>
+        </div>
+    </div>
+    </footer> -->
+</body>
+</html>
